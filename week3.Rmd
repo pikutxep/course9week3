@@ -1,0 +1,71 @@
+---
+title: "Week 3 Assignment"
+date: April 04, 2020
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+In this presentation I will show an historgram with the population of Navarre and a map of the population by village, showing the color as quantile.
+
+## Histogram
+
+```{r hyst}
+library(plotly)
+data = read.csv("2884bsc - 2.csv", header = FALSE, sep=";")
+
+plot_ly(x = data[,5], type = "histogram")
+```
+
+## Population map
+
+```{r }
+
+data$q <- with(data, cut(data[,5], quantile(data[,5])))
+levels(data$q) <- paste(c("1st", "2nd", "3rd", "4th", "5th"), "Quantile")
+data$q <- as.ordered(data$q)
+```
+
+
+```{r }
+
+names <- paste(data[,2], data[,5], sep=" ")
+
+g <- list(
+    scope = "europe", 
+    domain = list(
+      x = c(0, 1), 
+      y = c(0, 1)
+    ), 
+    lataxis = list(range = c(35.0, 70.0)), 
+    lonaxis = list(range = c(-9.0, 38.0)), 
+    showland = TRUE, 
+    landcolor = "rgb(229, 229, 229)", 
+    showframe = TRUE, 
+    projection = list(type = "Mercator"), 
+    resolution = 50, 
+    countrycolor = "rgb(255, 0, 255)", 
+    coastlinecolor = "rgb(0, 255, 255)", 
+    showcoastlines = TRUE
+)
+
+fig <- plot_geo(data, locationmode = 'ISO-3', sizes = c(1, 250))
+  
+fig <- fig %>% add_markers(
+    x =data[,7], y = data[,6], color = data[,8], hoverinfo = "text", text = names)
+  
+fig <- fig %>% layout(title = '2019 Navarre population<br>(Click legend to toggle)', geo = g)
+
+  fig
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
